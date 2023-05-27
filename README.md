@@ -1,6 +1,6 @@
 # Recoil USB-CAN Adapter
 
-This adapter follows the python-can serial bus API packet format to transmit CAN frames over UART.
+This adapter follows the python-can serial bus [API packet format](https://python-can.readthedocs.io/en/stable/interfaces/serial.html#serial-frame-format) to transmit CAN frames over UART.
 
 ## Recoil Motor Controller Communication Format
 
