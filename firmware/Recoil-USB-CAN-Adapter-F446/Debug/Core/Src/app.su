@@ -1,5 +1,0 @@
-../Core/Src/app.c:27:6:HAL_CAN_RxFifo0MsgPendingCallback	40	static
-../Core/Src/app.c:63:6:HAL_TIM_PeriodElapsedCallback	16	static
-../Core/Src/app.c:73:6:HAL_UART_RxCpltCallback	24	static
-../Core/Src/app.c:121:6:APP_init	56	static
-../Core/Src/app.c:150:6:APP_main	4	static
