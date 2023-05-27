@@ -23,10 +23,6 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
   APP_handleCANMessage();
 }
 
-/**
- * Procedure following G431 User Manual Section 4.4.2 Option bytes programming
- *
- */
 void APP_initFlashOption() {
   // 1. Unlock the FLASH_CR with the LOCK clearing sequence
   // Check that no Flash memory operation is on going by checking the BSY bit in the Flash status register (FLASH_SR).
@@ -38,7 +34,7 @@ void APP_initFlashOption() {
   while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY)) {}
   HAL_FLASH_OB_Unlock();
 
-  // 3. program OPTR
+  // 3. Program OPTR
   FLASH->OPTR = 0xFBEFF8AAU;  // default to boot from flash
 
   // 4. Set the Options Start bit OPTSTRT in the Flash control register (FLASH_CR).
@@ -54,10 +50,9 @@ void APP_initFlashOption() {
   // If LOCK is set by software, OPTLOCK is automatically set too
   HAL_FLASH_Lock();
 
-  // 7. reload the new settings
+  // 7. Reload the new settings
   // seems this line will cause error when put before FLASH_Lock(), which will then corrupt all Flash settings
   // so putting it here
-  // can also comment out this line and just power cycle to update the flash settings
   HAL_FLASH_OB_Launch();
 
   while (1) {
