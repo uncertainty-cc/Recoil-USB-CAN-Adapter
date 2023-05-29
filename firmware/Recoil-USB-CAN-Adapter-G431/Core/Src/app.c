@@ -19,6 +19,9 @@ uint8_t   usb_tx_buffer[USB_BUFFER_SIZE];
 CAN_Frame can_rx_frame;
 CAN_Frame can_tx_frame;
 
+uint8_t usb_evt_happened;
+uint8_t can_evt_happened;
+
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
   APP_handleCANMessage();
 }
@@ -64,13 +67,11 @@ void APP_initFlashOption() {
 }
 
 void APP_handleUSBMessage() {
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
-
   // check if the first byte is the correct Start of Frame
   uint8_t is_valid_frame = usb_rx_buffer[0] == 0xAAU;
   if (!is_valid_frame) {
     // if not, discard and continue receiving
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
     return;
   }
 
@@ -92,13 +93,15 @@ void APP_handleUSBMessage() {
     can_tx_frame.data[i] = usb_rx_buffer[10+i];
   }
 
+  if (!HAL_FDCAN_GetTxFifoFreeLevel(&hfdcan1)) {
+    uint32_t fifo_idx = HAL_FDCAN_GetLatestTxFifoQRequestBuffer(&hfdcan1);
+    HAL_FDCAN_AbortTxRequest(&hfdcan1, fifo_idx);
+  }
   CAN_putTxFrame(&hfdcan1, &can_tx_frame);
-
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
+  usb_evt_happened = 1;
 }
 
 void APP_handleCANMessage() {
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
   CAN_getRxFrame(&hfdcan1, &can_rx_frame);
 
   // prepare the USB frame
@@ -126,14 +129,16 @@ void APP_handleCANMessage() {
   usb_tx_buffer[10+can_rx_frame.size] = PYTHONCAN_END_OF_FRAME;
 
   CDC_Transmit_FS(usb_tx_buffer, usb_tx_size);
-
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
+  can_evt_happened = 1;
 }
 
 void APP_init() {
   #if FIRST_TIME_BOOTUP
   APP_initFlashOption();
   #endif
+
+  usb_evt_happened = 0;
+  can_evt_happened = 0;
 
   FDCAN_FilterTypeDef filter_config;
   filter_config.IdType = FDCAN_STANDARD_ID;
@@ -149,9 +154,20 @@ void APP_init() {
 }
 
 void APP_main() {
-  char str[128];
-  sprintf(str, "hello\n");
-  HAL_UART_Transmit(&huart2, (uint8_t *)str, strlen(str), 100);
+  // status light logic is handled in the main loop, because we need some
+  // delay to make LED lights brighter
+  if (usb_evt_happened) {
+    usb_evt_happened = 0;
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
+  }
+  if (can_evt_happened) {
+    can_evt_happened = 0;
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+  }
 
-  HAL_Delay(100);
+  // this value controls the "brightness" and granularity of the LED for each activity
+  HAL_Delay(1);
+
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
 }
