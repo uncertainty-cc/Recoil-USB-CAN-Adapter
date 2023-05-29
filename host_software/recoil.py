@@ -7,71 +7,121 @@ import can
 import serial
 
 class Mode:
-    DISABLED             = 0x00
-    IDLE                 = 0x01
+    # these are three safe modes
+    DISABLED                        = 0x00
+    IDLE                            = 0x01
+
     # these are special modes
-    DAMPING              = 0x02
-    CALIBRATION          = 0x05
+    DAMPING                         = 0x02
+    CALIBRATION                     = 0x05
+
     # these are closed-loop modes
-    CURRENT              = 0x10
-    TORQUE               = 0x11
-    VELOCITY             = 0x12
-    POSITION             = 0x13
+    CURRENT                         = 0x10
+    TORQUE                          = 0x11
+    VELOCITY                        = 0x12
+    POSITION                        = 0x13
+
     # these are open-loop modes
-    VABC_OVERRIDE        = 0x20
-    VALPHABETA_OVERRIDE  = 0x21
-    VQD_OVERRIDE         = 0x22
-    IQD_OVERRIDE         = 0x23
-    DEBUG                = 0x80
+    VABC_OVERRIDE                   = 0x20
+    VALPHABETA_OVERRIDE             = 0x21
+    VQD_OVERRIDE                    = 0x22
+
+    DEBUG                           = 0x80
+
+class ErrorCode:
+    NO_ERROR                        = 0b0000000000000000
+    GENERAL                         = 0b0000000000000001
+    ESTOP                           = 0b0000000000000010
+    INITIALIZATION_ERROR            = 0b0000000000000100
+    CALIBRATION_ERROR               = 0b0000000000001000
+    POWERSTAGE_ERROR                = 0b0000000000010000
+    INVALID_MODE                    = 0b0000000000100000
+    WATCHDOG_TIMEOUT                = 0b0000000001000000
+    OVER_VOLTAGE                    = 0b0000000010000000
+    OVER_CURRENT                    = 0b0000000100000000
+    OVER_TEMPERATURE                = 0b0000001000000000
+    CAN_TX_FAULT                    = 0b0000010000000000
+    I2C_FAULT                       = 0b0000100000000000
 
 class CAN_ID:
-    ESTOP              = 0x00
-    ID                 = 0x01
-    VERSION            = 0x02
-    SAFETY_WATCHDOG    = 0x04
-    MODE_ERROR         = 0x06
-    FLASH              = 0x0F
+    ESTOP                           = 0x00
+    INFO                            = 0x01
+    SAFETY_WATCHDOG                 = 0x02
+    MODE                            = 0x05
+    FLASH                           = 0x0E
 
-    FAST_FRAME_0       = 0x10
-    FAST_FRAME_1       = 0x11
+    USR_PARAM_READ                  = 0x10
+    USR_PARAM_WRITE                 = 0x11
+    USR_FAST_FRAME_0                = 0x12
+    USR_FAST_FRAME_1                = 0x13
+    USR_DEBUG_0                     = 0x14
+    USR_DEBUG_1                     = 0x15
+    USR_DEBUG_2                     = 0x16
 
-    ENCODER_CPR_OFFSET               = 0x20
-    ENCODER_FILTER                   = 0x21
-    ENCODER_POSITION_RAW_N_ROTATIONS = 0x22
-    POWERSTAGE_VOLTAGE_THRESHOLD     = 0x23
-    POWERSTAGE_FILTER                = 0x24
-    POWERSTAGE_BUS_VOLTAGE_MEASURED  = 0x25
-    MOTOR_POLE_PAIR_KV               = 0x26
-    MOTOR_PHASE_ORDER_FLUX_OFFSET    = 0x27
+    PING                            = 0x1F
 
-    CURRENT_KP_KI                    = 0x30
-    CURRENT_LIMIT                    = 0x31
-    CURRENT_IA_IB_MEASURED           = 0x32
-    CURRENT_IC_MEASURED              = 0x33
-    CURRENT_VA_VB_SETPOINT           = 0x34
-    CURRENT_VC_SETPOINT              = 0x35
-    CURRENT_IALPHA_IBETA_MEASURED    = 0x36
-    CURRENT_VALPHA_VBETA_SETPOINT    = 0x37
-    CURRENT_VQ_VD_TARGET             = 0x38
-    CURRENT_VQ_VD_SETPOINT           = 0x39
-    CURRENT_IQ_ID_TARGET             = 0x3A
-    CURRENT_IQ_ID_MEASURED           = 0x3B
-    CURRENT_IQ_ID_SETPOINT           = 0x3C
-    CURRENT_IQ_ID_INTEGRATOR         = 0x3D
+class Command:
+    ENCODER_CPR                     = 0x10
+    ENCODER_OFFSET                  = 0x11
+    ENCODER_FILTER                  = 0x12
+    ENCODER_FLUX_OFFSET             = 0x13
+    ENCODER_POSITION_RAW            = 0x14
+    ENCODER_N_ROTATIONS             = 0x15
+    POWERSTAGE_VOLTAGE_THRESHOLD_LOW    = 0x16
+    POWERSTAGE_VOLTAGE_THRESHOLD_HIGH   = 0x17
+    POWERSTAGE_FILTER                   = 0x18
+    POWERSTAGE_BUS_VOLTAGE_MEASURED     = 0x19
+    MOTOR_POLE_PAIR                 = 0x1A
+    MOTOR_KV                        = 0x1B
+    MOTOR_PHASE_ORDER               = 0x1C
+    MOTOR_PHASE_RESISTANCE          = 0x1D
+    MOTOR_PHASE_INDUCTANCE          = 0x1E
+    CURRENT_KP                      = 0x1F
+    CURRENT_KI                      = 0x20
+    CURRENT_BANDWIDTH               = 0x21
+    CURRENT_LIMIT                   = 0x22
+    CURRENT_IA_MEASURED             = 0x23
+    CURRENT_IB_MEASURED             = 0x24
+    CURRENT_IC_MEASURED             = 0x25
+    CURRENT_VA_SETPOINT             = 0x26
+    CURRENT_VB_SETPOINT             = 0x27
+    CURRENT_VC_SETPOINT             = 0x28
+    CURRENT_IALPHA_MEASURED         = 0x29
+    CURRENT_IBETA_MEASURED          = 0x2A
+    CURRENT_VALPHA_SETPOINT         = 0x2B
+    CURRENT_VBETA_SETPOINT          = 0x2C
+    CURRENT_VQ_TARGET               = 0x2D
+    CURRENT_VD_TARGET               = 0x2E
+    CURRENT_VQ_SETPOINT             = 0x2F
+    CURRENT_VD_SETPOINT             = 0x30
+    CURRENT_IQ_TARGET               = 0x31
+    CURRENT_ID_TARGET               = 0x32
+    CURRENT_IQ_MEASURED             = 0x33
+    CURRENT_ID_MEASURED             = 0x34
+    CURRENT_IQ_SETPOINT             = 0x35
+    CURRENT_ID_SETPOINT             = 0x36
+    CURRENT_IQ_INTEGRATOR           = 0x37
+    CURRENT_ID_INTEGRATOR           = 0x38
+    POSITION_KP                     = 0x39
+    POSITION_KI                     = 0x3A
+    VELOCITY_KP                     = 0x3B
+    VELOCITY_KI                     = 0x3C
+    TORQUE_LIMIT                    = 0x3D
+    VELOCITY_LIMIT                  = 0x3E
+    POSITION_LIMIT_LOW              = 0x3F
+    POSITION_LIMIT_HIGH             = 0x40
+    TORQUE_TARGET                   = 0x41
+    TORQUE_MEASURED                 = 0x42
+    TORQUE_SETPOINT                 = 0x43
+    VELOCITY_TARGET                 = 0x44
+    VELOCITY_MEASURED               = 0x45
+    VELOCITY_SETPOINT               = 0x46
+    POSITION_TARGET                 = 0x47
+    POSITION_MEASURED               = 0x48
+    POSITION_SETPOINT               = 0x49
+    VELOCITY_INTEGRATOR             = 0x4A
+    POSITION_INTEGRATOR             = 0x4B
 
-    POSITION_KP_KI                   = 0x40
-    VELOCITY_KP_KI                   = 0x41
-    TORQUE_VELOCITY_LIMIT            = 0x42
-    POSITION_LIMIT                   = 0x43
-    TORQUE_TARGET                    = 0x44
-    TORQUE_MEASURED_SETPOINT         = 0x45
-    VELOCITY_TARGET                  = 0x46
-    VELOCITY_MEASURED_SETPOINT       = 0x47
-    POSITION_TARGET                  = 0x48
-    POSITION_MEASURED_SETPOINT       = 0x49
-    POSITION_VELOCITY_INTEGRATOR     = 0x4A
-
-    PING               = 0x7F
 
 
 class CANFrame:
@@ -122,7 +172,7 @@ class SPICANTransport:
         print("connected")
 
     def transmit(self, controller, frame, callback=None):
-        can_id = (frame.func_id << 4) | frame.device_id
+        can_id = (frame.func_id << 6) | frame.device_id
 
         msg = can.Message(
             arbitration_id=can_id,
@@ -146,8 +196,8 @@ class SPICANTransport:
         if not msg:
             return None
         frame = CANFrame(
-            device_id = msg.arbitration_id & 0x0F,
-            func_id = msg.arbitration_id >> 4,
+            device_id = msg.arbitration_id & 0x3F,
+            func_id = msg.arbitration_id >> 6,
             size = msg.dlc,
             data = msg.data
         )
@@ -180,7 +230,7 @@ class SerialCANTransport:
         print("connected")
 
     def transmit(self, controller, frame):
-        can_id = (frame.func_id << 4) | frame.device_id
+        can_id = (frame.func_id << 6) | frame.device_id
 
         msg = can.Message(
             arbitration_id=can_id,
@@ -196,8 +246,8 @@ class SerialCANTransport:
         if not msg:
             return None
         frame = CANFrame(
-            device_id = msg.arbitration_id & 0x0F,
-            func_id = msg.arbitration_id >> 4,
+            device_id = msg.arbitration_id & 0x3F,
+            func_id = msg.arbitration_id >> 6,
             size = msg.dlc,
             data = msg.data
         )
@@ -213,9 +263,9 @@ class MotorController:
         self.firmware_version = ""
 
     @staticmethod
-    def unpack(format, data, index):
+    def unpack(format_str, data, index=0):
         try:
-            return struct.unpack(format, data)[index]
+            return struct.unpack(format_str, data)[index]
         except struct.error as e:
             print("warning:", e, data)
             return 0
@@ -282,120 +332,30 @@ class MotorController:
             callback(rx_data)
         return rx_data
 
-    def getPositionMeasured(self, callback=None):
-        tx_frame = CANFrame(self.device_id, CAN_ID.POSITION_MEASURED_SETPOINT, size=0)
+    def readParameter(self, param_cmd, callback=None):
+        tx_data = struct.pack("<B", param_cmd)
+        tx_frame = CANFrame(self.device_id, CAN_ID.USR_PARAM_READ, size=1, data=tx_data)
         self.transport.transmit(self, tx_frame)
         rx_frame = self.transport.receive(self)
         if not rx_frame:
             return 0
-        rx_data = MotorController.unpack("<ff", rx_frame.data, 0)
+        rx_cmd = MotorController.unpack("<BBBBf", rx_frame.data)[0]
+        rx_data = MotorController.unpack("<BBBBf", rx_frame.data)[4]
+        print(rx_cmd, rx_data)
         if callback:
             callback(rx_data)
         return rx_data
 
-    def getPositionSetpoint(self, callback=None):
-        tx_frame = CANFrame(self.device_id, CAN_ID.POSITION_MEASURED_SETPOINT, size=0)
+    def writeParameter(self, param_cmd, value, callback=None):
+        tx_data = None
+        if type(value) == float:
+            tx_data = struct.pack("<BBBBf", param_cmd, 0, 0, 0, value)
+        elif type(value) == int:
+            tx_data = struct.pack("<BBBBL", param_cmd, 0, 0, 0, value)
+        else:
+            print("unspported type!")
+        tx_frame = CANFrame(self.device_id, CAN_ID.USR_PARAM_WRITE, size=8, data=tx_data)
         self.transport.transmit(self, tx_frame)
-        rx_frame = self.transport.receive(self)
-        if not rx_frame:
-            return 0
-        rx_data = MotorController.unpack("<ff", rx_frame.data, 1)
-        if callback:
-            callback(rx_data)
-        return rx_data
-
-    def setPositionTarget(self, position_target, callback=None):
-        tx_frame = CANFrame(self.device_id, CAN_ID.POSITION_TARGET, size=4, 
-                            data=struct.pack("<f", position_target))
-        self.transport.transmit(self, tx_frame)
-        rx_frame = self.transport.receive(self)
-        if not rx_frame:
-            return 0
-        rx_data = MotorController.unpack("<f", rx_frame.data, 0)
-        if callback:
-            callback(rx_data)
-        return rx_data
-
-    def getPositionLimit(self, callback=None):
-        tx_frame = CANFrame(self.device_id, CAN_ID.POSITION_LIMIT, size=0)
-        self.transport.transmit(self, tx_frame)
-        rx_frame = self.transport.receive(self)
-        if not rx_frame:
-            return 0, 0
-        lower_limit = MotorController.unpack("<ff", rx_frame.data, 0)
-        upper_limit = MotorController.unpack("<ff", rx_frame.data, 1)
-        if callback:
-            callback(lower_limit, upper_limit)
-        return lower_limit, upper_limit
-
-
-    def setPositionOffset(self, offset, callback=None):
-        tx_frame = CANFrame(self.device_id, CAN_ID.ENCODER_CPR_OFFSET, size=8, 
-                            data=struct.pack("<if", 4096, offset))
-        self.transport.transmit(self, tx_frame)
-        rx_frame = self.transport.receive(self)
-        if not rx_frame:
-            return 0
-        rx_data = MotorController.unpack("<if", rx_frame.data, 1)
-        if callback:
-            callback(rx_data)
-        return rx_data
-
-    def getCPR(self, callback=None):
-        tx_frame = CANFrame(self.device_id, CAN_ID.ENCODER_CPR_OFFSET, size=0)
-        self.transport.transmit(self, tx_frame)
-        rx_frame = self.transport.receive(self)
-        if not rx_frame:
-            return 0
-        rx_data = MotorController.unpack("<if", rx_frame.data, 0)
-        if callback:
-            callback(rx_data)
-        return rx_data
-
-    def getPositionOffset(self, callback=None):
-        tx_frame = CANFrame(self.device_id, CAN_ID.ENCODER_CPR_OFFSET, size=0)
-        self.transport.transmit(self, tx_frame)
-        rx_frame = self.transport.receive(self)
-        if not rx_frame:
-            return 0
-        rx_data = MotorController.unpack("<if", rx_frame.data, 1)
-        if callback:
-            callback(rx_data)
-        return rx_data
-
-    def setPositionLimit(self, lower_limit, upper_limit, callback=None):
-        tx_frame = CANFrame(self.device_id, CAN_ID.POSITION_LIMIT, size=8, 
-                            data=struct.pack("<ff", lower_limit, upper_limit))
-        self.transport.transmit(self, tx_frame)
-        rx_frame = self.transport.receive(self)
-        if not rx_frame:
-            return 0
-        lower_limit = MotorController.unpack("<ff", rx_frame.data, 0)
-        upper_limit = MotorController.unpack("<ff", rx_frame.data, 1)
-        if callback:
-            callback(lower_limit, upper_limit)
-        return lower_limit, upper_limit
-
-    def getTorqueLimit(self, callback=None):
-        tx_frame = CANFrame(self.device_id, CAN_ID.TORQUE_VELOCITY_LIMIT, size=0)
-        self.transport.transmit(self, tx_frame)
-        rx_frame = self.transport.receive(self)
-        if not rx_frame:
-            return 0
-        rx_data = MotorController.unpack("<ff", rx_frame.data, 0)
-        if callback:
-            callback(rx_data)
-        return rx_data
-
-    def setTorqueVelocityLimit(self, torque_limit, velocity_limit, callback=None):
-        tx_frame = CANFrame(self.device_id, CAN_ID.TORQUE_VELOCITY_LIMIT, size=8,
-                            data=struct.pack("<ff", torque_limit, velocity_limit))
-        self.transport.transmit(self, tx_frame)
-        rx_frame = self.transport.receive(self)
-        if not rx_frame:
-            return 0
-        rx_data = MotorController.unpack("<ff", rx_frame.data, 0)
-        if callback:
-            callback(rx_data)
-        return rx_data
-        
+    
+    def getPositionMeasured(self):
+        return self.readParameter(Command.POSITION_MEASURED)
