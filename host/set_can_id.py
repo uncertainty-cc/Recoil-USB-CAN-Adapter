@@ -6,10 +6,12 @@ import can.interfaces.serial
 
 import recoil
 
+TRANSPORT = "/dev/ttyACM0"
+
 CURRENT_DEVICE_ID = 1
 TARGET_DEVICE_ID = 2
 
-transport = recoil.SerialCANTransport(port="/dev/ttyACM0", baudrate=115200)
+transport = recoil.SerialCANTransport(port=TRANSPORT, baudrate=115200)
 transport.start()
 
 motor = recoil.MotorController(transport, device_id=CURRENT_DEVICE_ID)

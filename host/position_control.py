@@ -7,7 +7,7 @@ import can.interfaces.serial
 import recoil
 
 TRANSPORT = "/dev/ttyACM0"
-DEVICE_ID = 6
+DEVICE_ID = 2
 
 info = {
     "position_measured": 0,

@@ -3,9 +3,11 @@ import time
 import can.interfaces.serial
 
 import recoil
+import argparser
+
 
 TRANSPORT = "/dev/ttyACM0"
-DEVICE_ID = 6
+DEVICE_ID = argparser.getID()
 
 F_LEN = 24
 
