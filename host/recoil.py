@@ -142,8 +142,8 @@ class CANFrame:
         self.id_type = id_type
 
 
-class SPICANTransport:
-    def __init__(self, port="can0", baudrate=1000000):
+class CANTransport:
+    def __init__(self, port, baudrate=1000000):
         self.port = port
         self.baudrate = baudrate
         self._interface = None
@@ -152,12 +152,8 @@ class SPICANTransport:
 
     def stop(self):
         self._killed.set()
-        os.system("sudo ifconfig {port} down".format(port=self.port))
 
     def start(self):
-        os.system("sudo ip link set {port} type can bitrate {baudrate}".format(port=self.port, baudrate=self.baudrate))
-        os.system("sudo ifconfig {port} up".format(port=self.port))
-
         self._killed.clear()
         self.connect()
 
@@ -166,12 +162,12 @@ class SPICANTransport:
     def connect(self):
         while not self._interface:
             try:
-                self._interface = can.Bus(interface="socketcan", channel=self.port, bustype="socketcan", baudrate=self.baudrate)
+                self._interface = can.Bus(interface=self.INTERFACE, channel=self.port, bustype=self.INTERFACE, baudrate=self.baudrate)
             except serial.serialutil.SerialException as e:
                 print(e)
         print("connected")
 
-    def transmit(self, controller, frame, callback=None):
+    def transmit(self, controller, frame):
         can_id = (frame.func_id << 6) | frame.device_id
 
         msg = can.Message(
@@ -186,15 +182,14 @@ class SPICANTransport:
         except can.exceptions.CanOperationError as e:
             print(e)
             return None
+        if not msg:
+            return None
         while msg and msg.is_error_frame:
             try:
                 msg = self._interface.recv(timeout=timeout) # blocking
             except can.exceptions.CanOperationError as e:
                 print(e)
                 return None
-        # print(msg)
-        if not msg:
-            return None
         frame = CANFrame(
             device_id = msg.arbitration_id & 0x3F,
             func_id = msg.arbitration_id >> 6,
@@ -204,54 +199,25 @@ class SPICANTransport:
         return frame
 
 
-class SerialCANTransport:
-    def __init__(self, port="COM1", baudrate=1000000):
-        self.port = port
-        self.baudrate = baudrate
-        self._interface = None
-        self._handlers = []
-        self._killed = threading.Event()
+class SPICANTransport(CANTransport):
+    INTERFACE = "socketcan"
 
     def stop(self):
         self._killed.set()
+        os.system("sudo ifconfig {port} down".format(port=self.port))
 
     def start(self):
+        os.system("sudo ip link set {port} type can bitrate {baudrate}".format(port=self.port, baudrate=self.baudrate))
+        os.system("sudo ifconfig {port} up".format(port=self.port))
+
         self._killed.clear()
         self.connect()
 
         print("started")
 
-    def connect(self):
-        while not self._interface:
-            try:
-                self._interface = can.Bus(interface="serial", channel=self.port, baudrate=self.baudrate)
-            except serial.serialutil.SerialException as e:
-                print(e)
-        print("connected")
 
-    def transmit(self, controller, frame):
-        can_id = (frame.func_id << 6) | frame.device_id
-
-        msg = can.Message(
-            arbitration_id=can_id,
-            is_extended_id=False,
-            data=frame.data)
-        self._interface.send(msg)
-        
-    def receive(self, controller, timeout=0.1):
-        try:
-            msg = self._interface.recv(timeout=timeout) # blocking
-        except can.exceptions.CanOperationError:
-            return None
-        if not msg:
-            return None
-        frame = CANFrame(
-            device_id = msg.arbitration_id & 0x3F,
-            func_id = msg.arbitration_id >> 6,
-            size = msg.dlc,
-            data = msg.data
-        )
-        return frame
+class SerialCANTransport(CANTransport):
+    INTERFACE= "serial"
 
 
 class MotorController:
