@@ -93,10 +93,11 @@ void APP_handleUSBMessage() {
     can_tx_frame.data[i] = usb_rx_buffer[10+i];
   }
 
-  if (!HAL_FDCAN_GetTxFifoFreeLevel(&hfdcan1)) {
-    uint32_t fifo_idx = HAL_FDCAN_GetLatestTxFifoQRequestBuffer(&hfdcan1);
-    HAL_FDCAN_AbortTxRequest(&hfdcan1, fifo_idx);
-  }
+  // does not really need this piece of code
+//  if (!HAL_FDCAN_GetTxFifoFreeLevel(&hfdcan1)) {
+//    uint32_t fifo_idx = HAL_FDCAN_GetLatestTxFifoQRequestBuffer(&hfdcan1);
+//    HAL_FDCAN_AbortTxRequest(&hfdcan1, fifo_idx);
+//  }
   CAN_putTxFrame(&hfdcan1, &can_tx_frame);
   usb_evt_happened = 1;
 }
