@@ -386,6 +386,9 @@ class MotorController:
 
     def setPositionTarget(self, value):
         self._writeParameterFloat(Command.POSITION_TARGET, value)
+        
+    def setTorqueLimit(self, value):
+        self._writeParameterFloat(Command.TORQUE_LIMIT, value)
 
 
 

@@ -6,7 +6,8 @@ import recoil
 import argparser
 
 
-TRANSPORT = "/dev/ttyACM0"
+# TRANSPORT = "/dev/ttyACM0"
+TRANSPORT = "COM14"
 DEVICE_ID = argparser.getID()
 
 F_LEN = 24
@@ -20,11 +21,12 @@ config = {}
 
 config["id"] =                                  motor.getInfo()[0]
 config["version"] =                             motor.getInfo()[1]
+config["mode"] =                             motor.getMode()
 
 config["encoder"] = {}
 config["encoder"]["cpr"] =                      motor._readParameterInt32(recoil.Command.ENCODER_CPR)[1]
 config["encoder"]["position_offset"] =          motor._readParameterFloat(recoil.Command.ENCODER_OFFSET)[1]
-config["encoder"]["filter_bandwidth"] =         motor._readParameterFloat(recoil.Command.ENCODER_BANDWIDTH)[1]
+config["encoder"]["filter_bandwidth"] =         motor._readParameterFloat(recoil.Command.ENCODER_FILTER_BANDWIDTH)[1]
 config["encoder"]["flux_offset"] =              motor._readParameterFloat(recoil.Command.ENCODER_FLUX_OFFSET)[1]
 config["encoder"]["position_raw"] =             motor._readParameterInt32(recoil.Command.ENCODER_POSITION_RAW)[1]
 config["encoder"]["n_rotations"] =              motor._readParameterInt32(recoil.Command.ENCODER_N_ROTATIONS)[1]
@@ -91,9 +93,17 @@ config["positioncontroller"]["position_setpoint"] =        motor._readParameterF
 config["positioncontroller"]["velocity_integrator"] =      motor._readParameterFloat(recoil.Command.VELOCITY_INTEGRATOR)[1]
 config["positioncontroller"]["position_integrator"] =      motor._readParameterFloat(recoil.Command.POSITION_INTEGRATOR)[1]
 
+
+def getModeName(value):
+    for name, val in recoil.Mode.__dict__.items():
+        if val == value:
+            return name
+
+
 print("## Controller Settings")
 print(" - id:".ljust(F_LEN, " "), config["id"])
 print(" - version:".ljust(F_LEN, " "), "{0}.{1}.{2}".format((config["version"]>>16) & 0xFFFF, (config["version"]>>8) & 0xFF, config["version"] & 0xFF))
+print(" - mode:".ljust(F_LEN, " "), getModeName(config["mode"]))
 
 print("## Encoder Settings")
 for key in config["encoder"].keys():

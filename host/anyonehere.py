@@ -8,6 +8,7 @@ import recoil
 
 # TRANSPORT = "/dev/ttyACM0"
 TRANSPORT = "COM14"
+# TRANSPORT = "COM32"
 
 transport = recoil.SerialCANTransport(port=TRANSPORT, baudrate=115200)
 transport.start()
