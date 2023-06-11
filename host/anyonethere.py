@@ -14,12 +14,11 @@ transport = recoil.SerialCANTransport(port=TRANSPORT, baudrate=115200)
 transport.start()
 
 try:
-    for i in range(1, 1<<5):
-        motor = recoil.MotorController(transport, device_id=i)
+    while True:
+        motor = recoil.MotorController(transport, device_id=1)
 
-        print("ping id {id}: ".format(id=i), motor.ping())
+        print("ping id {id}: ".format(id=1), motor.ping())
 
-        time.sleep(0.02)
 except KeyboardInterrupt:
     pass
 
