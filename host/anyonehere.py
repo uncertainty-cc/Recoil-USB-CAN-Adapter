@@ -21,4 +21,6 @@ try:
 
         time.sleep(0.02)
 except KeyboardInterrupt:
-    transport.stop()
+    pass
+
+transport.stop()

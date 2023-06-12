@@ -152,6 +152,8 @@ class CANTransport:
 
     def stop(self):
         self._killed.set()
+        if self._interface:
+            self._interface.shutdown()
 
     def start(self):
         self._killed.clear()
