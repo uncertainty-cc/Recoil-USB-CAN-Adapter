@@ -162,7 +162,7 @@ class CANTransport:
     def connect(self):
         while not self._interface:
             try:
-                self._interface = can.Bus(interface=self.INTERFACE, channel=self.port, bustype=self.INTERFACE, baudrate=self.baudrate)
+                self._interface = can.Bus(interface=self.INTERFACE, channel=self.port, baudrate=self.baudrate)
             except serial.serialutil.SerialException as e:
                 print(e)
         print("connected")

@@ -4,6 +4,7 @@ import threading
 
 from cc.xboxcontroller import XboxController, Hand, Button
 import recoil
+from command_scheduler import Scheduler, Command, WaitCommand, LogCommand, EaseInOutQuadTrajectoryCommand
 
 
 # TRANSPORT = "/dev/ttyACM0"
@@ -12,6 +13,7 @@ TRANSPORT = "COM14"
 
 
 class Humanoid:
+    N_JOINTS = 12
     def __init__(self, transport):
         self.transport = recoil.SerialCANTransport(port=transport, baudrate=115200)
         self.is_stopped = threading.Event()
@@ -31,10 +33,11 @@ class Humanoid:
             recoil.MotorController(self.transport, device_id=12),
         ]
         
-        self.torque_limit = 0.5
+        self.torque_limit = 0.1
 
-        self.target_positions = [0] * 12
-        self.current_positions = [0] * 12
+        self.position_targets = [0] * Humanoid.N_JOINTS
+        self.position_measureds = [0] * Humanoid.N_JOINTS
+        self.position_offsets = [0] * Humanoid.N_JOINTS
 
     def start(self):
         self.transport.start()
@@ -43,15 +46,16 @@ class Humanoid:
     def stop(self):
         self.is_stopped.set()
         print("stopping...")
-
+    
     def resetTargetPositions(self):
         for i, j in enumerate(self.joints):
-            self.target_positions[i] = j.getPositionMeasured()
+            self.position_offsets[i] = j.getPositionMeasured()
+            self.position_targets[i] = 0
         self.printPositions()
         
     def printPositions(self):
         for i, j in enumerate(self.joints):
-            print("{0}: {1:.3f}".format(j.device_id, self.target_positions[i]), end="\t")
+            print("{0}: {1:.3f}".format(j.device_id, self.position_targets[i]), end="\t")
         print()
 
     def setDamping(self):                
@@ -62,11 +66,12 @@ class Humanoid:
         for j in self.joints:
             j.setMode(recoil.Mode.IDLE)
 
-    def rampUp(self):
+    def rampUp(self, torque_limit):
+        self.torque_limit = torque_limit
         print("ramping up position control...")
         
         for i, j in enumerate(self.joints):
-            j.setPositionTarget(self.target_positions[i])
+            j.setPositionTarget(self.position_targets[i] + self.position_offsets[i])
             j.setTorqueLimit(0)
             j.setMode(recoil.Mode.POSITION)
 
@@ -80,11 +85,11 @@ class Humanoid:
                 ramp_torque_limit = self.torque_limit * (t / n_counts)
 
                 for i, j in enumerate(self.joints):
-                    j.setPositionTarget(self.target_positions[i])
+                    j.setPositionTarget(self.position_targets[i] + self.position_offsets[i])
                     j.setTorqueLimit(ramp_torque_limit)
                     j.feed()
                         
-                print("{:.3f} / {:.3f}".format(ramp_torque_limit, self.torque_limit))
+                print("Booting up...\t {:.3f} / {:.3f}".format(ramp_torque_limit, self.torque_limit))
 
                 time.sleep(dt)
             except KeyboardInterrupt:
@@ -93,7 +98,8 @@ class Humanoid:
     
     def update(self):
         for i, j in enumerate(self.joints):
-            j.setPositionTarget(self.target_positions[i])
+            self.position_measureds[i] = j.getPositionMeasured() - self.position_offsets[i]
+            j.setPositionTarget(self.position_targets[i] + self.position_offsets[i])
             j.feed()
 
 
@@ -118,11 +124,36 @@ def onButton(button, pressed):
     print("current active controller: {}".format(robot.joints[active_joint].device_id))
 
 
+scheduler = Scheduler()
+
+# 8 ~= 30.5 deg
+# 12 ~= 45.9  deg
+# 16 ~= 61.1 deg
+# 24 ~= 91.7 deg
+
+scheduler.addCommand(LogCommand("Starting trajectory!!"))
+scheduler.addCommand(WaitCommand(1))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, 0, 12, 4))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, 12, 0, 4))
+scheduler.addCommand(WaitCommand(1))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, 0, 12, 4))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, 12, 0, 4))
+scheduler.addCommand(WaitCommand(1))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, 0, 11, 2))
+scheduler.addCommand(WaitCommand(1))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, 11, 0, 2))
+
 robot.start()
 
 robot.resetTargetPositions()
 
 stick.onButton = onButton
+
+trajectory_control = False
+
+start_pos = 0
+
+print("Press A to start position control")
 
 while not robot.is_stopped.is_set():
     try:
@@ -134,10 +165,23 @@ while not robot.is_stopped.is_set():
             robot.stop()
         elif stick.getAButton():
             # blocking
-            robot.rampUp()
+            robot.rampUp(torque_limit=0.75)
+        elif stick.getBButton():
+            trajectory_control = True
+            
+            scheduler.start()
 
-        robot.target_positions[active_joint] += 0.2 * stick.axes["LY"]
-        robot.printPositions()
+        if trajectory_control and not scheduler.isFinished():
+            scheduler.update()
+            
+            print("trajectory in progress", robot.position_targets[0])
+
+        else:
+            if trajectory_control:
+                print("trajectory done")
+                trajectory_control = False
+            robot.position_targets[active_joint] += 0.2 * stick.axes["LY"]
+            
 
         time.sleep(0.01)
             
@@ -149,8 +193,8 @@ print("Dampen mode")
 
 robot.setDamping()
 
-# add a 1 second delay to allow button debouncing
-for i in range(100):
+# add a 0.5 second delay to allow button debouncing
+for i in range(50):
     stick.update()
     robot.update()
     time.sleep(0.01)
