@@ -6,9 +6,8 @@ import can.interfaces.serial
 
 import recoil
 
-# TRANSPORT = "/dev/ttyACM0"
-TRANSPORT = "COM14"
-# TRANSPORT = "COM32"
+TRANSPORT = "/dev/ttyACM0"
+# TRANSPORT = "COM14"
 
 transport = recoil.SerialCANTransport(port=TRANSPORT, baudrate=115200)
 transport.start()
