@@ -6,10 +6,10 @@ from cc.xboxcontroller import XboxController, Hand, Button
 import recoil
 from command_scheduler import Scheduler, Command, WaitCommand, LogCommand, EaseInOutQuadTrajectoryCommand
 
+import util
 
-# TRANSPORT = "/dev/ttyACM0"
-TRANSPORT = "COM14"
-# TRANSPORT = "COM32"
+
+TRANSPORT = util.getTransport()
 
 
 class Humanoid:

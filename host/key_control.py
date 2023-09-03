@@ -4,11 +4,10 @@ import threading
 
 from keyboardcontroller import KeyboardController
 import recoil
+import util
 
 
-TRANSPORT = "/dev/ttyACM0"
-# TRANSPORT = "COM14"
-
+TRANSPORT = util.getTransport()
 
 class Humanoid:
     def __init__(self, transport):

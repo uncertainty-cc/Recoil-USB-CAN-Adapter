@@ -1,4 +1,11 @@
+import platform
 import argparse
+
+def getTransport():    
+    if platform.system() == "Windows":
+        return "COM14"
+    else:
+        return "/dev/ttyACM0"
 
 def getID():
     parser = argparse.ArgumentParser()

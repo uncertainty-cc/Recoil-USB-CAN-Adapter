@@ -1,13 +1,15 @@
 import time
+import platform
 
 import serial
 import can
 import can.interfaces.serial
 
 import recoil
+import util
 
-TRANSPORT = "/dev/ttyACM0"
-# TRANSPORT = "COM14"
+
+TRANSPORT = util.getTransport()
 
 transport = recoil.SerialCANTransport(port=TRANSPORT, baudrate=115200)
 transport.start()

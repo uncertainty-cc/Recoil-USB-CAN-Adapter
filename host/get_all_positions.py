@@ -5,9 +5,10 @@ import can
 import can.interfaces.serial
 
 import recoil
-import argparser
+import util
 
-TRANSPORT = "/dev/ttyACM0"
+
+TRANSPORT = util.getTransport()
 
 transport = recoil.SerialCANTransport(port=TRANSPORT, baudrate=115200)
 transport.start()

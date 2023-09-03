@@ -3,12 +3,11 @@ import time
 import can.interfaces.serial
 
 import recoil
-import argparser
+import util
 
 
-# TRANSPORT = "/dev/ttyACM0"
-TRANSPORT = "COM14"
-DEVICE_ID = argparser.getID()
+TRANSPORT = util.getTransport()
+DEVICE_ID = util.getID()
 
 F_LEN = 24
 

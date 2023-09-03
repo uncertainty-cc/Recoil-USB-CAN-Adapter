@@ -5,8 +5,10 @@ import can
 import can.interfaces.serial
 
 import recoil
+import util
 
-TRANSPORT = "/dev/ttyACM0"
+
+TRANSPORT = util.getTransport()
 
 CURRENT_DEVICE_ID = 1
 TARGET_DEVICE_ID = 2
