@@ -1,6 +1,6 @@
-app.c:25:6:HAL_FDCAN_RxFifo0Callback	1
-app.c:29:6:APP_initFlashOption	4
-app.c:69:6:APP_handleUSBMessage	3
-app.c:105:6:APP_handleCANMessage	2
-app.c:136:6:APP_init	1
-app.c:157:6:APP_main	3
+../Core/Src/app.c:25:6:HAL_FDCAN_RxFifo0Callback	1
+../Core/Src/app.c:29:6:APP_initFlashOption	4
+../Core/Src/app.c:69:6:APP_handleUSBMessage	3
+../Core/Src/app.c:105:6:APP_handleCANMessage	2
+../Core/Src/app.c:136:6:APP_init	1
+../Core/Src/app.c:157:6:APP_main	3
