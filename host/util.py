@@ -3,7 +3,7 @@ import argparse
 
 def getTransport():    
     if platform.system() == "Windows":
-        return "COM14"
+        return "COM233"
     else:
         return "/dev/ttyACM0"
 
