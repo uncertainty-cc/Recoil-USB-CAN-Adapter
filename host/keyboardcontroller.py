@@ -6,55 +6,116 @@ import pynput
 
 class KeyboardController:
     def __init__(self):
-        self._listener = pynput.keyboard.Listener(on_press=self.onKeyPress)
+        self._listener = pynput.keyboard.Listener(on_press=self.onKeyPress, on_release=self.onKeyRelease)
         self._is_stopped = threading.Event()
         self._is_stopped.clear()
+        self.key_states = {}
 
+    def get(self, key):
+        return self.key_states.get(key)
 
     def onKeyPress(self, key):
-        
         if type(key) == pynput.keyboard._xorg.KeyCode:
-            if key.char == "1":
+            kc = key.char.upper()
+            self.key_states[kc] = True
+            if kc == "1":
                 self.on1Pressed()
-            elif key.char == "2":
+            elif kc == "2":
                 self.on2Pressed()
-            elif key.char == "3":
+            elif kc == "3":
                 self.on3Pressed()
-            elif key.char == "4":
+            elif kc == "4":
                 self.on4Pressed()
-            elif key.char == "5":
+            elif kc == "5":
                 self.on5Pressed()
-            elif key.char == "6":
+            elif kc == "6":
                 self.on6Pressed()
-            elif key.char == "7":
+            elif kc == "7":
                 self.on7Pressed()
-            elif key.char == "8":
+            elif kc == "8":
                 self.on8Pressed()
-            elif key.char == "9":
+            elif kc == "9":
                 self.on9Pressed()
-            elif key.char == "0":
+            elif kc == "0":
                 self.on0Pressed()
-            elif key.char.upper() == "A":
+            elif kc.upper() == "A":
                 self.onAPressed()
-            elif key.char.upper() == "B":
+            elif kc.upper() == "B":
                 self.onBPressed()
-            elif key.char.upper() == "X":
+            elif kc.upper() == "X":
                 self.onXPressed()
-            elif key.char.upper() == "Y":
+            elif kc.upper() == "Y":
                 self.onYPressed()
         else:
             if key == pynput.keyboard.Key.esc:
+                self.key_states["esc"] = True
                 self.onESCPressed()
             elif key == pynput.keyboard.Key.left:
+                self.key_states["left"] = True
                 self.onLeftArrowPressed()
             elif key == pynput.keyboard.Key.right:
+                self.key_states["right"] = True
                 self.onLeftArrowPressed()
             elif key == pynput.keyboard.Key.up:
+                self.key_states["up"] = True
                 self.onUpArrowPressed()
             elif key == pynput.keyboard.Key.down:
+                self.key_states["down"] = True
                 self.onDownArrowPressed()
         
         return not self._is_stopped.is_set()
+
+    def onKeyRelease(self, key):
+        if type(key) == pynput.keyboard._xorg.KeyCode:
+            kc = key.char.upper()
+            self.key_states[kc] = False
+            # if kc == "1":
+            #     self.on1Pressed()
+            # elif kc == "2":
+            #     self.on2Pressed()
+            # elif kc == "3":
+            #     self.on3Pressed()
+            # elif kc == "4":
+            #     self.on4Pressed()
+            # elif kc == "5":
+            #     self.on5Pressed()
+            # elif kc == "6":
+            #     self.on6Pressed()
+            # elif kc == "7":
+            #     self.on7Pressed()
+            # elif kc == "8":
+            #     self.on8Pressed()
+            # elif kc == "9":
+            #     self.on9Pressed()
+            # elif kc == "0":
+            #     self.on0Pressed()
+            # elif kc.upper() == "A":
+            #     self.onAPressed()
+            # elif kc.upper() == "B":
+            #     self.onBPressed()
+            # elif kc.upper() == "X":
+            #     self.onXPressed()
+            # elif kc.upper() == "Y":
+            #     self.onYPressed()
+        else:
+            if key == pynput.keyboard.Key.esc:
+                self.key_states["esc"] = False
+                # self.onESCPressed()
+            elif key == pynput.keyboard.Key.left:
+                self.key_states["left"] = False
+                # self.onLeftArrowPressed()
+            elif key == pynput.keyboard.Key.right:
+                self.key_states["right"] = False
+                # self.onLeftArrowPressed()
+            elif key == pynput.keyboard.Key.up:
+                self.key_states["up"] = False
+                # self.onUpArrowPressed()
+            elif key == pynput.keyboard.Key.down:
+                self.key_states["down"] = False
+                # self.onDownArrowPressed()
+        
+        return not self._is_stopped.is_set()
+
 
     def start(self):
         self._listener.start()

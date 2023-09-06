@@ -4,9 +4,8 @@ import threading
 
 from cc.xboxcontroller import XboxController, Hand, Button
 import recoil
-from command_scheduler import Scheduler, Command, WaitCommand, LogCommand, EaseInOutQuadTrajectoryCommand
-
 import util
+from command_scheduler import Scheduler, Command, WaitCommand, LogCommand, EaseInOutQuadTrajectoryCommand
 
 
 TRANSPORT = util.getTransport()
@@ -153,7 +152,7 @@ trajectory_control = False
 
 start_pos = 0
 
-print("Press A to start position control")
+print("Press B to start position control")
 
 while not robot.is_stopped.is_set():
     try:

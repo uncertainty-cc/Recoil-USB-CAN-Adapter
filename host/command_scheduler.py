@@ -1,5 +1,6 @@
 import time
 
+import numpy as np
 from matplotlib import pyplot as plt
 
 
@@ -56,27 +57,33 @@ class WaitCommand(Command):
 
 
 class EaseInOutQuadTrajectoryCommand(Command):
-    def __init__(self, robot, start_value, end_value, duration):
+    def __init__(self, robot, start_values, end_values, duration):
         super().__init__(duration)
         self.robot = robot
-        self.start_value = start_value
-        self.end_value = end_value
-        self.target_value = start_value
+        self.start_values = start_values
+        self.end_values = end_values
+        self.target_values = start_values
         self.offset = 0
         
     def _easeInOutQuad(self, x):
         return 2 * x**2 if x < 0.5 else 1 - (-2 * x + 2)**2 / 2
 
     def execute(self):
-        self.target_value = self.start_value + (self.end_value - self.start_value) * self._easeInOutQuad(self.t / self.duration)
+        self.target_values = self.start_values + (self.end_values - self.start_values) * self._easeInOutQuad(self.t / self.duration)
         # print(self.t, self.target_value)
         if self.robot:
-            self.robot.position_targets[0] = self.target_value
-            self.robot.position_targets[1] = -self.target_value
-            self.robot.position_targets[6] = -2*self.target_value
-            self.robot.position_targets[7] = 2*self.target_value
-            self.robot.position_targets[10] = self.target_value
-            self.robot.position_targets[11] = -self.target_value
+            self.robot.position_targets[0] = self.target_values[0]
+            self.robot.position_targets[1] = self.target_values[1]
+            self.robot.position_targets[2] = self.target_values[2]
+            self.robot.position_targets[3] = self.target_values[3]
+            self.robot.position_targets[4] = self.target_values[4]
+            self.robot.position_targets[5] = self.target_values[5]
+            self.robot.position_targets[6] = self.target_values[6]
+            self.robot.position_targets[7] = self.target_values[7]
+            self.robot.position_targets[8] = self.target_values[8]
+            self.robot.position_targets[9] = self.target_values[9]
+            self.robot.position_targets[10] = self.target_values[10]
+            self.robot.position_targets[11] = self.target_values[11]
 
         return self.t >= self.duration
 
