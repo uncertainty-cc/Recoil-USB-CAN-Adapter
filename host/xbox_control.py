@@ -2,6 +2,7 @@ import time
 import math
 import threading
 
+from robot import Humanoid
 from cc.xboxcontroller import XboxController, Hand, Button
 import recoil
 import util
@@ -9,98 +10,6 @@ from command_scheduler import Scheduler, Command, WaitCommand, LogCommand, EaseI
 
 
 TRANSPORT = util.getTransport()
-
-
-class Humanoid:
-    N_JOINTS = 12
-    def __init__(self, transport):
-        self.transport = recoil.SerialCANTransport(port=transport, baudrate=115200)
-        self.is_stopped = threading.Event()
-        
-        self.joints = [
-            recoil.MotorController(self.transport, device_id=1),
-            recoil.MotorController(self.transport, device_id=2),
-            recoil.MotorController(self.transport, device_id=3),
-            recoil.MotorController(self.transport, device_id=4),
-            recoil.MotorController(self.transport, device_id=5),
-            recoil.MotorController(self.transport, device_id=6),
-            recoil.MotorController(self.transport, device_id=7),
-            recoil.MotorController(self.transport, device_id=8),
-            recoil.MotorController(self.transport, device_id=9),
-            recoil.MotorController(self.transport, device_id=10),
-            recoil.MotorController(self.transport, device_id=11),
-            recoil.MotorController(self.transport, device_id=12),
-        ]
-        
-        self.torque_limit = 0.1
-
-        self.position_targets = [0] * Humanoid.N_JOINTS
-        self.position_measureds = [0] * Humanoid.N_JOINTS
-        self.position_offsets = [0] * Humanoid.N_JOINTS
-
-    def start(self):
-        self.transport.start()
-        self.is_stopped.clear()
-
-    def stop(self):
-        self.is_stopped.set()
-        print("stopping...")
-    
-    def resetTargetPositions(self):
-        for i, j in enumerate(self.joints):
-            self.position_offsets[i] = j.getPositionMeasured()
-            self.position_targets[i] = 0
-        self.printPositions()
-        
-    def printPositions(self):
-        for i, j in enumerate(self.joints):
-            print("{0}: {1:.3f}".format(j.device_id, self.position_targets[i]), end="\t")
-        print()
-
-    def setDamping(self):                
-        for j in self.joints:
-            j.setMode(recoil.Mode.DAMPING)
-        
-    def setIdle(self):
-        for j in self.joints:
-            j.setMode(recoil.Mode.IDLE)
-
-    def rampUp(self, torque_limit):
-        self.torque_limit = torque_limit
-        print("ramping up position control...")
-        
-        for i, j in enumerate(self.joints):
-            j.setPositionTarget(self.position_targets[i] + self.position_offsets[i])
-            j.setTorqueLimit(0)
-            j.setMode(recoil.Mode.POSITION)
-
-        ramp_up_time_ms = 1
-        dt = 0.01
-        n_counts = int(ramp_up_time_ms / dt)
-        for t in range(n_counts):
-            try:
-                if self.is_stopped.is_set():
-                    return
-                ramp_torque_limit = self.torque_limit * (t / n_counts)
-
-                for i, j in enumerate(self.joints):
-                    j.setPositionTarget(self.position_targets[i] + self.position_offsets[i])
-                    j.setTorqueLimit(ramp_torque_limit)
-                    j.feed()
-                        
-                print("Booting up...\t {:.3f} / {:.3f}".format(ramp_torque_limit, self.torque_limit))
-
-                time.sleep(dt)
-            except KeyboardInterrupt:
-                self.stop()
-                continue
-    
-    def update(self):
-        for i, j in enumerate(self.joints):
-            self.position_measureds[i] = j.getPositionMeasured() - self.position_offsets[i]
-            j.setPositionTarget(self.position_targets[i] + self.position_offsets[i])
-            j.feed()
-
 
 robot = Humanoid(transport=TRANSPORT)
 stick = XboxController(0, deadzone=0.)

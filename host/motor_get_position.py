@@ -1,9 +1,5 @@
 import time
 
-import serial
-import can
-import can.interfaces.serial
-
 import recoil
 import util
 
