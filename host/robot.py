@@ -173,3 +173,4 @@ class Humanoid:
         for i, j in enumerate(self.joints):
             config[i] = self.getJointConfigs(i)
         return config
+    

@@ -260,7 +260,7 @@ class MotorController:
         self.transport.transmit(self, tx_frame)
         rx_frame = self.transport.receive(self)
         if not rx_frame:
-            return 0
+            return [-1, -1]
         rx_data = MotorController.unpack("<LL", rx_frame.data)
         if callback:
             callback(self, rx_data)

@@ -117,15 +117,15 @@ scheduler = Scheduler()
 # 24 ~= 91.7 deg
 
 zero_pos = np.zeros(Humanoid.N_JOINTS)
-left_raise = np.array([1, 0, 0, 0, 0, 0, -2, 0, 0, 0, -1, 0]) * 10
-right_raise = np.array([0, -1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1]) * 10
+left_raise = np.array([1, 0, 0, 0, 0, 0, -2, 0, 0, 0, -1, 0]) * 7
+right_raise = np.array([0, -1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1]) * 7
 
 bend_knee = np.array([1, -1, 0, 0, 0, 0, -2, 2, 0, 0, -1, 1]) * 2
 
 left_kick = np.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0]) * 8
 right_kick = np.array([0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]) * 8
 
-t = 0.5
+t = 0.75
 
 scheduler.addCommand(LogCommand("Starting trajectory!!"))
 scheduler.addCommand(WaitCommand(1))
@@ -145,6 +145,12 @@ scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, bend_knee+left_kick-r
 
 
 scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, zero_pos, left_raise, t))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, left_raise, right_raise, t))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, right_raise, left_raise, t))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, left_raise, right_raise, t))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, right_raise, left_raise, t))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, left_raise, right_raise, t))
+scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, right_raise, left_raise, t))
 scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, left_raise, right_raise, t))
 scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, right_raise, left_raise, t))
 scheduler.addCommand(EaseInOutQuadTrajectoryCommand(robot, left_raise, right_raise, t))

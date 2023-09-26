@@ -7,11 +7,11 @@ import util
 TRANSPORT = util.getTransport()
 DEVICE_ID = util.getID()
 
-# SWEEP_MODE = "sine"
-SWEEP_MODE = "square"
+SWEEP_MODE = "sine"
+# SWEEP_MODE = "square"
 
-SWEEP_FREQ = 1
-SWEEP_MAGNITUDE = 10 * math.pi
+SWEEP_FREQ = 4.66*2*1.55
+SWEEP_MAGNITUDE = 1.5 * math.pi
 
 transport = recoil.SerialCANTransport(port=TRANSPORT, baudrate=115200)
 transport.start()
@@ -45,7 +45,7 @@ try:
         
         motor.setPositionTarget(target_position)
         
-        # print("target: {0}, \tmeasured: {1}".format(target_position, motor.getPositionMeasured()))
+        print("target: {0}, \tmeasured: {1}".format(target_position, motor.getPositionMeasured()))
 
         motor.feed()
         # time.sleep(0.01)

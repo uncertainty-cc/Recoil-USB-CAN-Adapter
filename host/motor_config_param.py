@@ -20,13 +20,13 @@ motor = recoil.MotorController(transport, device_id=DEVICE_ID)
 # motor._writeParameterFloat(recoil.Command.POSITION_KP, 2)
 # print(motor._readParameterFloat(recoil.Command.POSITION_KP)[1])
 
-# print(motor._readParameterFloat(recoil.Command.VELOCITY_KP)[1])
-# motor._writeParameterFloat(recoil.Command.VELOCITY_KP, 0.15)
-# print(motor._readParameterFloat(recoil.Command.VELOCITY_KP)[1])
+print(motor._readParameterFloat(recoil.Command.VELOCITY_KP)[1])
+motor._writeParameterFloat(recoil.Command.VELOCITY_KP, 0.1)
+print(motor._readParameterFloat(recoil.Command.VELOCITY_KP)[1])
 
-print(motor._readParameterFloat(recoil.Command.TORQUE_LIMIT)[1])
-motor._writeParameterFloat(recoil.Command.TORQUE_LIMIT, 1)
-print(motor._readParameterFloat(recoil.Command.TORQUE_LIMIT)[1])
+# print(motor._readParameterFloat(recoil.Command.TORQUE_LIMIT)[1])
+# motor._writeParameterFloat(recoil.Command.TORQUE_LIMIT, 1)
+# print(motor._readParameterFloat(recoil.Command.TORQUE_LIMIT)[1])
 
 motor.storeSettingToFlash()
 
