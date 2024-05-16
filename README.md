@@ -12,6 +12,24 @@ The CAN ID is separated into two fields, `device_id` and `func_id`.
 | CAN_ID[10:6] | CAN_ID[5:0]  |
 | 32 functions | 64 devices   |
 
+## Hardware Settings
+
+CAN Baudrate setting:
+
+Prescaler: 18
+
+Time Quantum: 125.0 ns
+
+Time Seg1: 7
+
+Time Seg2: 2
+
+Time for one Bit: 1250 ns
+
+Baud Rate: 800000 bit/s
+
+
+
 
 ## Usage
 
