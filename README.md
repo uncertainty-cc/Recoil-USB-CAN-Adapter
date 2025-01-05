@@ -1,6 +1,6 @@
 # Recoil USB-CAN Adapter
 
-This adapter follows the python-can serial bus API packet format to transmit CAN frames over UART.
+This adapter follows the python-can serial bus [API packet format](https://python-can.readthedocs.io/en/stable/interfaces/serial.html#serial-frame-format) to transmit CAN frames over UART.
 
 ## Recoil Motor Controller Communication Format
 
@@ -11,6 +11,24 @@ The CAN ID is separated into two fields, `device_id` and `func_id`.
 | 5 bits       | 6 bits       |
 | CAN_ID[10:6] | CAN_ID[5:0]  |
 | 32 functions | 64 devices   |
+
+## Hardware Settings
+
+CAN Baudrate setting:
+
+Prescaler: 18
+
+Time Quantum: 125.0 ns
+
+Time Seg1: 7
+
+Time Seg2: 2
+
+Time for one Bit: 1250 ns
+
+Baud Rate: 800000 bit/s
+
+
 
 
 ## Usage
